@@ -1,0 +1,18 @@
+# Banco local
+*.db
+*.sqlite3
+
+# Chaves VAPID (contêm segredo — não enviar!)
+vapid_keys.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# Sistema
+.DS_Store
+*.log
