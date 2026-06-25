@@ -92,7 +92,7 @@ class PushSubscription(db.Model):
 
 @login_manager.user_loader
 def load_user(uid):
-    return Usuario.query.get(int(uid))
+    return db.session.get(Usuario, int(uid))
 
 
 def admin_required(f):

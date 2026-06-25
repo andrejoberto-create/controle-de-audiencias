@@ -1,8 +1,8 @@
-flask
-flask-sqlalchemy
-flask-login
-flask-apscheduler
-pywebpush
-werkzeug
-gunicorn
-psycopg2-binary
+flask>=3.0
+flask-sqlalchemy>=3.0
+flask-login>=0.6
+flask-apscheduler>=1.13
+pywebpush>=2.0
+werkzeug>=3.0
+gunicorn>=21.0
+psycopg2-binary>=2.9
