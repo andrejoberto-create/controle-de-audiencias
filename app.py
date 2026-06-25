@@ -13,7 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # ── App & DB ──────────────────────────────────────────────────
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'audiencias-pf-dev-2026')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'audiencias-pf-2026-XkQ9mP'
 
 DATABASE_URL = os.environ.get('DATABASE_URL', f"sqlite:///{os.path.join(os.path.dirname(__file__), 'audiencias.db')}")
 # Render usa postgres:// mas SQLAlchemy 1.4+ exige postgresql://
