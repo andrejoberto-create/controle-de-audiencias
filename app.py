@@ -109,9 +109,18 @@ def admin_required(f):
 BASE_DIR = os.path.dirname(__file__)
 KEY_FILE = os.path.join(BASE_DIR, 'vapid_keys.json')
 VAPID = {}
-if os.path.exists(KEY_FILE):
-    with open(KEY_FILE) as f:
-        VAPID = json.load(f)
+try:
+    if os.path.exists(KEY_FILE):
+        with open(KEY_FILE) as f:
+            VAPID = json.load(f)
+    # Suporte a variáveis de ambiente (produção)
+    if not VAPID and os.environ.get('VAPID_PUBLIC_KEY'):
+        VAPID = {
+            'public_key': os.environ['VAPID_PUBLIC_KEY'],
+            'private_key': os.environ['VAPID_PRIVATE_KEY'],
+        }
+except Exception:
+    pass
 
 VAPID_CLAIMS = {"sub": "mailto:admin@pf.gov.br"}
 
