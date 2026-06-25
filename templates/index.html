@@ -458,7 +458,8 @@ if (Notification.permission === 'granted' && VAPID_PUBLIC) {
 
 // ── Resumo 48h ────────────────────────────────────────────────
 function atualizarResumo() {
-  const rows = document.querySelectorAll('[data-dt]');
+  // Usa apenas linhas da tabela desktop para evitar contar duas vezes
+  const rows = document.querySelectorAll('#tabela tbody tr[data-dt]');
   const agora = new Date(); agora.setHours(0,0,0,0);
   const em48h = new Date(agora); em48h.setHours(48);
   let c = 0;
