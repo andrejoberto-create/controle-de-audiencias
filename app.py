@@ -88,6 +88,14 @@ class PushSubscription(db.Model):
     usuario_id= db.Column(db.Integer, db.ForeignKey('usuarios.id'))
 
 
+# ── Garante tabelas criadas ───────────────────────────────────
+@app.before_request
+def ensure_db():
+    try:
+        db.session.execute(db.text('SELECT 1 FROM usuarios LIMIT 1'))
+    except Exception:
+        db.create_all()
+
 # ── Auth helpers ──────────────────────────────────────────────
 
 @login_manager.user_loader
