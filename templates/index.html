@@ -427,9 +427,23 @@ function urlBase64ToUint8Array(b64) {
 }
 
 async function ativarNotificacoes() {
-  if (!('Notification' in window)) { showToast('Navegador não suporta notificações.', 'warning'); return; }
+  if (!('Notification' in window)) {
+    showToast('Seu navegador não suporta notificações.', 'warning'); return;
+  }
   const perm = await Notification.requestPermission();
-  if (perm !== 'granted') { showToast('Permissão negada.', 'warning'); return; }
+  if (perm !== 'granted') {
+    showToast('Permissão negada. Verifique as configurações do navegador.', 'warning'); return;
+  }
+
+  document.getElementById('btn-notif').classList.replace('btn-outline-warning', 'btn-warning');
+
+  // Sem VAPID configurado: notificações apenas com app aberto
+  if (!VAPID_PUBLIC) {
+    showToast('🔔 Notificações ativadas! Mantenha o app aberto para receber alertas.', 'success');
+    return;
+  }
+
+  // Com VAPID: notificações push mesmo com app fechado
   try {
     const reg = await navigator.serviceWorker.ready;
     const sub = await reg.pushManager.subscribe({
@@ -440,10 +454,9 @@ async function ativarNotificacoes() {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(sub.toJSON())
     });
-    document.getElementById('btn-notif').classList.replace('btn-outline-warning', 'btn-warning');
-    showToast('🔔 Notificações ativadas!', 'success');
+    showToast('🔔 Notificações push ativadas! Chegam mesmo com o app fechado.', 'success');
   } catch(e) {
-    showToast('Erro ao ativar notificações: ' + e.message, 'danger');
+    showToast('🔔 Notificações ativadas! (modo básico — mantenha o app aberto)', 'success');
   }
 }
 
