@@ -88,6 +88,12 @@ class PushSubscription(db.Model):
     usuario_id= db.Column(db.Integer, db.ForeignKey('usuarios.id'))
 
 
+# ── Debug temporário ─────────────────────────────────────────
+@app.errorhandler(500)
+def internal_error(e):
+    import traceback
+    return f"<pre style='font-size:12px'>{traceback.format_exc()}</pre>", 500
+
 # ── Auth helpers ──────────────────────────────────────────────
 
 @login_manager.user_loader
