@@ -474,13 +474,9 @@ async function ativarNotificacoes() {
   }
 }
 
-// Ativa automaticamente se já tem permissão
-if (Notification.permission === 'granted' && VAPID_PUBLIC) {
-  navigator.serviceWorker.ready.then(reg =>
-    reg.pushManager.getSubscription().then(sub => {
-      if (sub) document.getElementById('btn-notif').classList.replace('btn-outline-warning','btn-warning');
-    })
-  );
+// Restaura estado do sino ao carregar a página
+if ('Notification' in window && Notification.permission === 'granted') {
+  document.getElementById('btn-notif').classList.replace('btn-outline-warning', 'btn-warning');
 }
 
 // ── Resumo 48h ────────────────────────────────────────────────
