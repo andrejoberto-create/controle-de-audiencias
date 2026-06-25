@@ -257,13 +257,20 @@
         </div>
         <div class="modal-body">
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-12">
               <label class="form-label fw-semibold">Policial <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="policial" required>
+              <select class="form-select" name="policial" id="sel_policial" required onchange="preencherMatricula(this)">
+                <option value="">Selecione o policial...</option>
+                {% for p in policiais %}
+                <option value="{{ p.nome }}" data-matricula="{{ p.matricula or '' }}">
+                  {{ p.nome }}{% if p.matricula %} — {{ p.matricula }}{% endif %}
+                </option>
+                {% endfor %}
+              </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" style="display:none" id="div_matricula">
               <label class="form-label fw-semibold">Matrícula</label>
-              <input type="text" class="form-control" name="matricula">
+              <input type="text" class="form-control" name="matricula" id="inp_matricula" readonly>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Nº do Processo</label>
@@ -323,13 +330,20 @@
         </div>
         <div class="modal-body">
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-12">
               <label class="form-label fw-semibold">Policial <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="policial" id="e_policial" required>
+              <select class="form-select" name="policial" id="e_policial" required>
+                <option value="">Selecione o policial...</option>
+                {% for p in policiais %}
+                <option value="{{ p.nome }}" data-matricula="{{ p.matricula or '' }}">
+                  {{ p.nome }}{% if p.matricula %} — {{ p.matricula }}{% endif %}
+                </option>
+                {% endfor %}
+              </select>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Matrícula</label>
-              <input type="text" class="form-control" name="matricula" id="e_matricula">
+              <input type="text" class="form-control" name="matricula" id="e_matricula" readonly>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Nº do Processo</label>
@@ -498,6 +512,21 @@ async function syncAudiencias() {
 }
 setInterval(syncAudiencias, 30000);
 
+// ── Preenche matrícula ao selecionar policial ─────────────────
+function preencherMatricula(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  const mat = opt ? opt.dataset.matricula : '';
+  const inp = document.getElementById('inp_matricula');
+  const div = document.getElementById('div_matricula');
+  if (mat) {
+    inp.value = mat;
+    div.style.display = '';
+  } else {
+    inp.value = '';
+    div.style.display = 'none';
+  }
+}
+
 // ── Busca ─────────────────────────────────────────────────────
 ['busca', 'busca-mobile'].forEach(id => {
   const el = document.getElementById(id);
@@ -514,16 +543,20 @@ setInterval(syncAudiencias, 30000);
 function abrirEdicao(id) {
   fetch(`/audiencia/${id}/json`).then(r => r.json()).then(a => {
     document.getElementById('formEditar').action = `/audiencia/${id}/editar`;
-    document.getElementById('e_policial').value  = a.policial || '';
-    document.getElementById('e_matricula').value = a.matricula || '';
+    // Seleciona policial no dropdown
+    const selPol = document.getElementById('e_policial');
+    [...selPol.options].forEach(o => o.selected = o.value === a.policial);
+    // Preenche matrícula a partir do option selecionado
+    const opt = selPol.options[selPol.selectedIndex];
+    document.getElementById('e_matricula').value = opt ? (opt.dataset.matricula || a.matricula || '') : '';
     document.getElementById('e_processo').value  = a.numero_processo || '';
     document.getElementById('e_vara').value      = a.vara || '';
     document.getElementById('e_local').value     = a.local_audiencia || '';
     document.getElementById('e_data').value      = a.data_audiencia || '';
     document.getElementById('e_hora').value      = a.hora_audiencia || '';
     document.getElementById('e_obs').value       = a.observacoes || '';
-    const sel = document.getElementById('e_tipo');
-    [...sel.options].forEach(o => o.selected = o.value === a.tipo);
+    const selTipo = document.getElementById('e_tipo');
+    [...selTipo.options].forEach(o => o.selected = o.value === a.tipo);
     new bootstrap.Modal(document.getElementById('modalEditar')).show();
   });
 }

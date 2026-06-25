@@ -221,8 +221,10 @@ def index():
         Audiencia.data_audiencia.asc(), Audiencia.hora_audiencia.asc()).all()
     hoje = datetime.now().date()
     vapid_public = VAPID.get('public_key', '')
+    policiais = Usuario.query.filter_by(ativo=True).order_by(Usuario.nome).all()
     return render_template('index.html', audiencias=audiencias,
-                           hoje=hoje, vapid_public=vapid_public)
+                           hoje=hoje, vapid_public=vapid_public,
+                           policiais=policiais)
 
 
 @app.route('/audiencia/nova', methods=['POST'])
