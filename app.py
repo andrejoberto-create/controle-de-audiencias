@@ -145,7 +145,30 @@ def send_push(sub_info, title, body, tag=''):
 
 
 def notify_all(title, body, tag=''):
+    """Envia para todos (usado em testes)."""
     for s in PushSubscription.query.all():
+        send_push({"endpoint": s.endpoint,
+                   "keys": {"p256dh": s.p256dh, "auth": s.auth}},
+                  title, body, tag)
+
+
+def notify_audiencia(audiencia, title, body, tag=''):
+    """Envia para o policial da audiência + todos os admins."""
+    # Busca o usuário cujo nome bate com o policial
+    policial_user = Usuario.query.filter_by(nome=audiencia.policial, ativo=True).first()
+    policial_id = policial_user.id if policial_user else None
+
+    # IDs que devem receber: o próprio policial + todos os admins
+    admin_ids = {u.id for u in Usuario.query.filter_by(role='admin', ativo=True).all()}
+    destinatarios = admin_ids.copy()
+    if policial_id:
+        destinatarios.add(policial_id)
+
+    subs = PushSubscription.query.filter(
+        PushSubscription.usuario_id.in_(destinatarios)
+    ).all()
+
+    for s in subs:
         send_push({"endpoint": s.endpoint,
                    "keys": {"p256dh": s.p256dh, "auth": s.auth}},
                   title, body, tag)
@@ -182,7 +205,7 @@ def check_notifications():
                         corpo  = (f"{aud.policial}\n"
                                   f"{aud.vara or 'Vara não informada'}\n"
                                   f"{aud.data_audiencia.strftime('%d/%m/%Y')} às {aud.hora_audiencia}")
-                        notify_all(titulo, corpo, tag=f"aud-{aud.id}-{tipo}")
+                        notify_audiencia(aud, titulo, corpo, tag=f"aud-{aud.id}-{tipo}")
                         db.session.add(NotificacaoEnviada(audiencia_id=aud.id, tipo=tipo))
                         db.session.commit()
 
